@@ -27,22 +27,47 @@
 <h2 id="topic"></h2>
 <h1 id="timer">15:00</h1>
 
-<div class="person">Aman</div>
-<div class="person">Riya</div>
-<div class="person" id="me">You</div>
-<div class="person">Kabir</div>
+<h3 id="count"></h3>
+<div id="people"></div>
 
 <button id="muteBtn">Mute</button>
 <button onclick="window.location.href='report.html'">Leave</button>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  document.getElementById("me").textContent = (localStorage.getItem("userName") || "You") + " (you)";
+  const db = supabase.createClient("https://sbezafoatdqodhgrpsca.supabase.co", "sb_publishable_RPL5KysRewd1megD-SwkLg_qYfvsma-");
+
   const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get("id");
+  const me = localStorage.getItem("userName");
   document.getElementById("topic").textContent = params.get("topic");
+
+  async function loadPeople() {
+    const { data, error } = await db
+      .from("participants")
+      .select("user_name")
+      .eq("session_id", sessionId)
+      .order("joined_at");
+    if (error) return;
+
+    const names = [...new Set(data.map(function (p) { return p.user_name; }))];
+    document.getElementById("count").textContent = names.length + " in this room";
+
+    const box = document.getElementById("people");
+    box.innerHTML = "";
+    names.forEach(function (n) {
+      const div = document.createElement("div");
+      div.className = "person";
+      div.textContent = n === me ? n + " (you)" : n;
+      box.appendChild(div);
+    });
+  }
+
+  loadPeople();
+  setInterval(loadPeople, 4000);
 
   let seconds = 15 * 60;
   const timer = document.getElementById("timer");
-
   setInterval(function () {
     if (seconds <= 0) return;
     seconds--;
@@ -53,7 +78,6 @@
 
   const muteBtn = document.getElementById("muteBtn");
   let muted = false;
-
   muteBtn.addEventListener("click", function () {
     muted = !muted;
     muteBtn.textContent = muted ? "Unmute" : "Mute";
