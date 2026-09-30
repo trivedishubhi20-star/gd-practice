@@ -13,6 +13,7 @@
     padding: 14px 28px;
     font-size: 18px;
     border-radius: 10px;
+    margin: 4px;
   }
   .card {
     background-color: #f2f5ff;
@@ -43,46 +44,56 @@
 </div>
 <div id="sessionList"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  const db = supabase.createClient("https://sbezafoatdqodhgrpsca.supabase.co/rest/v1/", "sb_publishable_RPL5KysRewd1megD-SwkLg_qYfvsma-");
+
   const userName = localStorage.getItem("userName");
-if (!userName) {
-  window.location.href = "login.html";
-}
-document.getElementById("welcome").textContent = "Hi, " + userName + "!";
+  if (!userName) {
+    window.location.href = "login.html";
+  }
+  document.getElementById("welcome").textContent = "Hi, " + userName + "!";
+
   const btn = document.getElementById("joinBtn");
   const msg = document.getElementById("message");
   const list = document.getElementById("sessionList");
 
   btn.addEventListener("click", function () {
-    msg.textContent = "You joined the session! Get ready to speak.";
+    msg.textContent = "Pick a session below to join.";
   });
 
-  const sessions = [
-    { type: "GD", topic: "Should AI be used in classrooms?", time: "7:00 PM" },
-    { type: "Debate", topic: "Social media does more harm than good", time: "8:00 PM" },
-    { type: "GD", topic: "Is remote work the future?", time: "9:00 PM" }
-  ];
+  let sessions = [];
+
+  async function loadSessions() {
+    const { data, error } = await db.from("sessions").select("*").order("id");
+    if (error) {
+  msg.textContent = "Error: " + error.message;
+  return;
+    }
+    sessions = data;
+    showSessions("All");
+  }
 
   function showSessions(filter) {
     list.innerHTML = "";
-
     sessions.forEach(function (s) {
       if (filter !== "All" && s.type !== filter) return;
 
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML =
-        "<b>" + s.type + "</b> · " + s.time +
+        "<b>" + s.type + "</b> · " + s.start_time +
         "<br>" + s.topic +
         "<br><button>Join</button>";
 
-      card.querySelector("button").addEventListener("click", function () {
-        window.location.href = "room.html?topic=" + encodeURIComponent(s.topic);
+      card.querySelector("button").addEventListener("click", async function () {
+        await db.from("participants").insert({ session_id: s.id, user_name: userName });
+        window.location.href = "room.html?id=" + s.id + "&topic=" + encodeURIComponent(s.topic);
       });
 
       list.appendChild(card);
     });
   }
 
-  showSessions("All");
+  loadSessions();
 </script>
