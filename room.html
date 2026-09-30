@@ -1,0 +1,61 @@
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 30px 20px;
+    background-color: #ffffff;
+    color: black;
+  }
+  .person {
+    background-color: #f2f5ff;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 8px auto;
+    max-width: 320px;
+  }
+  button {
+    background-color: #4f8cff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 10px;
+    margin: 6px;
+  }
+</style>
+
+<h2 id="topic"></h2>
+<h1 id="timer">15:00</h1>
+
+<div class="person">Aman</div>
+<div class="person">Riya</div>
+<div class="person" id="me">You</div>
+<div class="person">Kabir</div>
+
+<button id="muteBtn">Mute</button>
+<button onclick="window.location.href='report.html'">Leave</button>
+
+<script>
+  document.getElementById("me").textContent = (localStorage.getItem("userName") || "You") + " (you)";
+  const params = new URLSearchParams(window.location.search);
+  document.getElementById("topic").textContent = params.get("topic");
+
+  let seconds = 15 * 60;
+  const timer = document.getElementById("timer");
+
+  setInterval(function () {
+    if (seconds <= 0) return;
+    seconds--;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    timer.textContent = m + ":" + (s < 10 ? "0" + s : s);
+  }, 1000);
+
+  const muteBtn = document.getElementById("muteBtn");
+  let muted = false;
+
+  muteBtn.addEventListener("click", function () {
+    muted = !muted;
+    muteBtn.textContent = muted ? "Unmute" : "Mute";
+  });
+</script>
