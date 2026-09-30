@@ -1,0 +1,43 @@
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 60px 20px;
+    background-color: #ffffff;
+    color: black;
+  }
+  input {
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 300px;
+  }
+  button {
+    background-color: #4f8cff;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    font-size: 18px;
+    border-radius: 10px;
+  }
+</style>
+
+<h1>GD Practice Hub</h1>
+<p>Enter your name to continue</p>
+<input id="nameInput" placeholder="Your name">
+<br><br>
+<button id="startBtn">Continue</button>
+
+<script>
+  document.getElementById("startBtn").addEventListener("click", function () {
+    const name = document.getElementById("nameInput").value.trim();
+    if (name === "") {
+      alert("Please enter your name");
+      return;
+    }
+    localStorage.setItem("userName", name);
+    window.location.href = "index.html";
+  });
+</script>
